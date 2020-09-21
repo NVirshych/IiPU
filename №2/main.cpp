@@ -37,36 +37,11 @@ int main() {
 		printf("VendorID = %s\n", data + deviceDesc->VendorIdOffset);
 		printf("Model = %s\n", data + deviceDesc->ProductIdOffset);
 		printf("Serial = %s\n", data + deviceDesc->SerialNumberOffset);
+		printf("Firmware revision = %s\n", data + deviceDesc->ProductRevisionOffset);
 	
 	}
 	else {
 	
-		cout << "Error: " << GetLastError() << endl;
-	}
-
-	dwIoControlCode = IOCTL_STORAGE_FIRMWARE_GET_INFO;
-	STORAGE_HW_FIRMWARE_INFO_QUERY quer;
-	ZeroMemory(&quer, sizeof(quer));
-	quer.Version = sizeof(quer);
-
-	lpInBuffer = &quer;
-	nInBufferSize = sizeof(quer);
-
-	STORAGE_HW_FIRMWARE_INFO buf;
-	ZeroMemory(&buf, sizeof(buf));
-	buf.Version = sizeof(buf);
-
-	lpOutBuffer = &buf;
-	nOutBufferSize = sizeof(buf);
-
-	//                     OK                                                                                  OK              OK
-	if (DeviceIoControl(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize, lpOutBuffer, nOutBufferSize, &BytesReturned, lpOverlapped)) {
-
-		printf("Firmware revision = %s\n", buf.Slot[0].Revision);
-
-	}
-	else {
-
 		cout << "Error: " << GetLastError() << endl;
 	}
 
