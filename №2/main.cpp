@@ -34,11 +34,11 @@ int main() {
 	//                     OK                                                                                  OK              OK
 	if (DeviceIoControl(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize, lpOutBuffer, nOutBufferSize, &BytesReturned, lpOverlapped)) {
 	
-		printf("VendorID = %s\n", data + deviceDesc->VendorIdOffset);
+		printf("VendorID = %d\n", static_cast<int>(*data + deviceDesc->VendorIdOffset));
 		printf("Model = %s\n", data + deviceDesc->ProductIdOffset);
 		printf("Serial = %s\n", data + deviceDesc->SerialNumberOffset);
 		printf("Firmware revision = %s\n", data + deviceDesc->ProductRevisionOffset);
-	
+
 	}
 	else {
 	
