@@ -9,7 +9,7 @@ void getMemInfo(_ULARGE_INTEGER& clusters, _ULARGE_INTEGER& freeClusters, _ULARG
 	_ULARGE_INTEGER diskSpace = { 0 }, freeSpace = { 0 };
 	string mountPath("\\\\.\\ :"), volumePath(" :\\");
 	for (char volumeLetter = 'A'; volumeLetter <= 'D'; volumeLetter++)
-	{	
+	{
 		mountPath[4] = volumeLetter;
 		HANDLE logicalDiskHandle = CreateFile(const_cast<char*>(mountPath.c_str()), GENERIC_READ,
 			FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
@@ -24,9 +24,9 @@ void getMemInfo(_ULARGE_INTEGER& clusters, _ULARGE_INTEGER& freeClusters, _ULARG
 }
 
 int main() {
-	HANDLE hDevice;																
-	DWORD BytesReturned;										
-	LPOVERLAPPED lpOverlapped = NULL;							
+	HANDLE hDevice;
+	DWORD BytesReturned;
+	LPOVERLAPPED lpOverlapped = NULL;
 	_ULARGE_INTEGER freeClusters = { 0 }, clusters = { 0 }, busyClusters = { 0 };
 	hDevice = CreateFile(TEXT("\\\\.\\PhysicalDrive1"), NULL, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
 
@@ -52,7 +52,7 @@ int main() {
 
 	//                     OK                                                                                  OK              OK
 	if (DeviceIoControl(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize, lpOutBuffer, nOutBufferSize, &BytesReturned, lpOverlapped)) {
-	
+
 		printf("VendorID = %d\n", static_cast<int>(*data + deviceDesc->VendorIdOffset));
 		printf("Model = %s\n", data + deviceDesc->ProductIdOffset);
 		printf("Serial = %s\n", data + deviceDesc->SerialNumberOffset);
@@ -62,32 +62,6 @@ int main() {
 		printf("Interface type: %s\n", interfaceTypes[deviceDesc->BusType]);
 		getMemInfo(clusters, freeClusters, busyClusters);
 		printf("Size = %lld bytes\nFree space = %lld bytes\nBusy space = %lld bytes\n", (long long int)clusters.QuadPart, freeClusters.QuadPart, busyClusters.QuadPart);
-	}
-	else {
-	
-		cout << "Error: " << GetLastError() << endl;
-	}
-
-	dwIoControlCode = IOCTL_STORAGE_FIRMWARE_GET_INFO;
-	STORAGE_HW_FIRMWARE_INFO_QUERY quer;
-	ZeroMemory(&quer, sizeof(quer));
-	quer.Version = sizeof(quer);
-
-	lpInBuffer = &quer;
-	nInBufferSize = sizeof(quer);
-
-	STORAGE_HW_FIRMWARE_INFO buf;
-	ZeroMemory(&buf, sizeof(buf));
-	buf.Version = sizeof(buf);
-
-	lpOutBuffer = &buf;
-	nOutBufferSize = sizeof(buf);
-
-	//                     OK                                                                                  OK              OK
-	if (DeviceIoControl(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize, lpOutBuffer, nOutBufferSize, &BytesReturned, lpOverlapped)) {
-
-		printf("Firmware revision = %s\n", buf.Slot[0].Revision);
-
 	}
 	else {
 
