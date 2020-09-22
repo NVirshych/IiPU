@@ -36,7 +36,7 @@ int main() {
 		"Spaces", "Nvme", "SCM", "Ufs", "Max", "MaxReserved" };
 
 	HANDLE hDevice;
-	hDevice = CreateFile(TEXT("\\\\.\\PhysicalDrive0"), NULL, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+	string deviceName = "\\\\.\\PhysicalDrive0";
 
 	DWORD dwIoControlCode = IOCTL_STORAGE_QUERY_PROPERTY;
 
@@ -50,27 +50,38 @@ int main() {
 	LPVOID lpOutBuffer = &data;
 	DWORD nOutBufferSize = sizeof(data);
 
-	DWORD BytesReturned;
+	DWORD BytesReturned = NULL;
 	LPOVERLAPPED lpOverlapped = NULL;
 
-	if (DeviceIoControl(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize, lpOutBuffer, nOutBufferSize, &BytesReturned, lpOverlapped)) {
+	for (int i = 0;; i++) {
 
-		printf("VendorID = %d\n", static_cast<int>(*data + deviceDesc->VendorIdOffset));
-		printf("Model = %s\n", data + deviceDesc->ProductIdOffset);
-		printf("Serial = %s\n", data + deviceDesc->SerialNumberOffset);
-		printf("Firmware revision = %s\n", data + deviceDesc->ProductRevisionOffset);
-		printf("Interface type: %s\n", interfaceTypes[deviceDesc->BusType]);
+		deviceName[18] = i;
+		hDevice = CreateFile(deviceName.c_str(), NULL, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+		if (hDevice == INVALID_HANDLE_VALUE)
+			break;
+
+		cout << "\tDevice '" << deviceName << "'" << endl;
+
+		if (DeviceIoControl(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize, lpOutBuffer, nOutBufferSize, &BytesReturned, lpOverlapped)) {
+
+			printf("VendorID = %d\n", static_cast<int>(*data + deviceDesc->VendorIdOffset));
+			printf("Model = %s\n", data + deviceDesc->ProductIdOffset);
+			printf("Serial = %s\n", data + deviceDesc->SerialNumberOffset);
+			printf("Firmware revision = %s\n", data + deviceDesc->ProductRevisionOffset);
+			printf("Interface type: %s\n", interfaceTypes[deviceDesc->BusType]);
+		}
+		else {
+
+			cout << "Error: " << GetLastError() << endl;
+		}
+
+		getMemInfo(clusters, freeClusters, busyClusters);
+		printf("Size = %lld bytes\n", clusters.QuadPart);
+		printf("Free space = %lld bytes\n", freeClusters.QuadPart);
+		printf("Busy space = %lld bytes\n", busyClusters.QuadPart);
+
+		CloseHandle(hDevice);
 	}
-	else {
-	
-		cout << "Error: " << GetLastError() << endl;
-	}
 
-	getMemInfo(clusters, freeClusters, busyClusters);
-	printf("Size = %lld bytes\n", clusters.QuadPart);
-	printf("Free space = %lld bytes\n", freeClusters.QuadPart);
-	printf("Busy space = %lld bytes\n", busyClusters.QuadPart);
-
-	CloseHandle(hDevice);
 	return 0;
 }
