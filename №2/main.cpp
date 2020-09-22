@@ -41,8 +41,7 @@ int main() {
 		"Spaces", "Nvme", "SCM", "Ufs", "Max", "MaxReserved" };
 
 	HANDLE hDevice;
-	string deviceName = "\\\\.\\PhysicalDrive0";
-
+	string deviceName = "\\\\.\\PhysicalDrive \0";
 	DWORD dwIoControlCode = IOCTL_STORAGE_QUERY_PROPERTY;
 
 	STORAGE_PROPERTY_QUERY query;
@@ -60,7 +59,7 @@ int main() {
 
 	for (int i = 0;; i++) {
 
-		deviceName[18] = i;
+		deviceName[17] = i + '0';
 		hDevice = CreateFile(deviceName.c_str(), NULL, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
 		if (hDevice == INVALID_HANDLE_VALUE)
 			break;
