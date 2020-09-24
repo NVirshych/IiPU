@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void getMemInfo(_ULARGE_INTEGER& clusters, _ULARGE_INTEGER& freeClusters, _ULARGE_INTEGER& busyClusters, int driveNumber)
+void getMemInfo(_ULARGE_INTEGER& storage, _ULARGE_INTEGER& freeStorage, _ULARGE_INTEGER& busyStorage, int driveNumber)
 {
 	_ULARGE_INTEGER diskSpace = { 0 }, freeSpace = { 0 };
 	string mountPath("\\\\.\\ :"), volumePath(" :\\");
@@ -23,11 +23,11 @@ void getMemInfo(_ULARGE_INTEGER& clusters, _ULARGE_INTEGER& freeClusters, _ULARG
 		volumePath[0] = volumeLetter;
 
 		GetDiskFreeSpaceExA(volumePath.c_str(), 0, &diskSpace, &freeSpace);
-		clusters.QuadPart += diskSpace.QuadPart;
-		freeClusters.QuadPart += freeSpace.QuadPart;
+		storage.QuadPart += diskSpace.QuadPart;
+		freeStorage.QuadPart += freeSpace.QuadPart;
 		CloseHandle(logicalDiskHandle);
 	}
-	busyClusters.QuadPart = clusters.QuadPart - freeClusters.QuadPart;
+	busyStorage.QuadPart = storage.QuadPart - freeStorage.QuadPart;
 }
 
 int main() {
@@ -35,7 +35,7 @@ int main() {
 	char data[400];
 	STORAGE_DEVICE_DESCRIPTOR* deviceDesc;
 	deviceDesc = (STORAGE_DEVICE_DESCRIPTOR*)&data;
-	_ULARGE_INTEGER freeClusters = { 0 }, clusters = { 0 }, busyClusters = { 0 };
+	_ULARGE_INTEGER freeStorage = { 0 }, storage = { 0 }, busyStorage = { 0 };
 	const char* interfaceTypes[] = { "Unknown", "SCSI", "ATAPI", "ATA", "1394", "SSA", "Fibre", "USB", "RAID", "ISCSI", "SAS", "SATA", "SD", "MMC", "Virtual", "FileBackedVirtual",
 		"Spaces", "Nvme", "SCM", "Ufs", "Max", "MaxReserved" };
 
@@ -78,10 +78,10 @@ int main() {
 			cout << "Error: " << GetLastError() << endl;
 		}
 
-		getMemInfo(clusters, freeClusters, busyClusters, i);
-		printf("Size = %lld bytes\n", clusters.QuadPart);
-		printf("Free space = %lld bytes\n", freeClusters.QuadPart);
-		printf("Busy space = %lld bytes\n", busyClusters.QuadPart);
+		getMemInfo(storage, freeStorage, busyStorage, i);
+		printf("Size = %lld bytes\n", storage.QuadPart);
+		printf("Free space = %lld bytes\n", freeStorage.QuadPart);
+		printf("Busy space = %lld bytes\n", busyStorage.QuadPart);
 
 		CloseHandle(hDevice);
 	}
