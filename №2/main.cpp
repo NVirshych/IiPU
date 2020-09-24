@@ -1,7 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
 #include <iostream>
-#include <ntddscsi.h>
 
 using namespace std;
 
@@ -17,11 +16,11 @@ void getMemInfo(_ULARGE_INTEGER& clusters, _ULARGE_INTEGER& freeClusters, _ULARG
 			FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 		if (logicalDiskHandle == INVALID_HANDLE_VALUE) continue;
 
-		volumePath[0] = volumeLetter;
-
 		STORAGE_DEVICE_NUMBER devNum = { 0 };
 		DeviceIoControl(logicalDiskHandle, IOCTL_STORAGE_GET_DEVICE_NUMBER, NULL, 0, &devNum, sizeof(devNum), NULL, NULL);
 		if (devNum.DeviceNumber != driveNumber) continue;
+
+		volumePath[0] = volumeLetter;
 
 		GetDiskFreeSpaceExA(volumePath.c_str(), 0, &diskSpace, &freeSpace);
 		clusters.QuadPart += diskSpace.QuadPart;
@@ -41,7 +40,7 @@ int main() {
 		"Spaces", "Nvme", "SCM", "Ufs", "Max", "MaxReserved" };
 
 	HANDLE hDevice;
-	string deviceName = "\\\\.\\PhysicalDrive \0";
+	string deviceName = "\\\\.\\PhysicalDrive ";
 	DWORD dwIoControlCode = IOCTL_STORAGE_QUERY_PROPERTY;
 
 	STORAGE_PROPERTY_QUERY query;
@@ -59,7 +58,7 @@ int main() {
 
 	for (int i = 0;; i++) {
 
-		deviceName[17] = i + '0';
+		deviceName[deviceName.size()-1] = i + '0';
 		hDevice = CreateFile(deviceName.c_str(), NULL, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
 		if (hDevice == INVALID_HANDLE_VALUE)
 			break;
