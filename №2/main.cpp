@@ -4,8 +4,8 @@
 
 using namespace std;
 
-void getMemInfo(_ULARGE_INTEGER& storage, _ULARGE_INTEGER& freeStorage, _ULARGE_INTEGER& busyStorage, int driveNumber)
-{
+void getMemInfo(_ULARGE_INTEGER& storage, _ULARGE_INTEGER& freeStorage, _ULARGE_INTEGER& busyStorage, int driveNumber){\
+
 	_ULARGE_INTEGER diskSpace = { 0 }, freeSpace = { 0 };
 	string mountPath("\\\\.\\ :"), volumePath(" :\\");
 
@@ -35,7 +35,7 @@ int main() {
 	char data[400];
 	STORAGE_DEVICE_DESCRIPTOR* deviceDesc;
 	deviceDesc = (STORAGE_DEVICE_DESCRIPTOR*)&data;
-	_ULARGE_INTEGER freeStorage = { 0 }, storage = { 0 }, busyStorage = { 0 };
+	_ULARGE_INTEGER freeStorage, storage, busyStorage;
 	const char* interfaceTypes[] = { "Unknown", "SCSI", "ATAPI", "ATA", "1394", "SSA", "Fibre", "USB", "RAID", "ISCSI", "SAS", "SATA", "SD", "MMC", "Virtual", "FileBackedVirtual",
 		"Spaces", "Nvme", "SCM", "Ufs", "Max", "MaxReserved" };
 
@@ -63,9 +63,9 @@ int main() {
 		if (hDevice == INVALID_HANDLE_VALUE)
 			break;
 
-		cout << "\tDevice '" << deviceName << "'" << endl;
-
 		if (DeviceIoControl(hDevice, dwIoControlCode, lpInBuffer, nInBufferSize, lpOutBuffer, nOutBufferSize, &BytesReturned, lpOverlapped)) {
+
+			cout << "\tDevice '" << deviceName << "'" << endl;
 
 			printf("VendorID = %d\n", static_cast<int>(*data + deviceDesc->VendorIdOffset));
 			printf("Model = %s\n", data + deviceDesc->ProductIdOffset);
@@ -78,10 +78,11 @@ int main() {
 			cout << "Error: " << GetLastError() << endl;
 		}
 
+		freeStorage = { 0 }, storage = { 0 }, busyStorage = { 0 };
 		getMemInfo(storage, freeStorage, busyStorage, i);
-		printf("Size = %lld bytes\n", storage.QuadPart);
-		printf("Free space = %lld bytes\n", freeStorage.QuadPart);
-		printf("Busy space = %lld bytes\n", busyStorage.QuadPart);
+		printf("Size = %f GB\n", static_cast<float>(storage.QuadPart)/1000/1000/1000);
+		printf("Free space = %f GB\n", static_cast<float>(freeStorage.QuadPart) / 1000 / 1000 / 1000);
+		printf("Busy space = %f GB\n\n", static_cast<float>(busyStorage.QuadPart) / 1000 / 1000 / 1000);
 
 		CloseHandle(hDevice);
 	}
