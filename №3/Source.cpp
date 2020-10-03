@@ -17,6 +17,8 @@ void getinfo() {
 
 	while (a != 2) {
 
+		system("cls");
+
 		cout << "Press 0 to Sleep" << endl;
 		cout << "Press 1 to Hibernate" << endl;
 		cout << "Press 2 to Exit" << endl << endl;
@@ -33,8 +35,6 @@ void getinfo() {
 		cout << "AC line status: " << ac[powerStatus.ACLineStatus] << endl;
 
 		Sleep(1000);
-
-		system("cls");
 	}
 }
 
@@ -43,15 +43,23 @@ int main(){
 	
 	thread log(getinfo);
 
-	while (1) {
+	while (a != 2) {
 
 		if (a = _getch()) {
 
 			a -= '0';
-			if (a == 2)
+
+			switch (a) {
+			
+			case(0):
+				SetSuspendState(FALSE, FALSE, FALSE);
 				break;
 
-			SetSuspendState((bool)a, FALSE, FALSE);
+			case(1):
+				SetSuspendState(TRUE, FALSE, FALSE);
+				break;
+
+			}
 		}
 	}
 
