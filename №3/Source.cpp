@@ -7,7 +7,7 @@
 #include "conio.h"
 using namespace std;
 
-int a;
+int input;
 
 void getinfo() {
 
@@ -15,7 +15,7 @@ void getinfo() {
 	char ac[2][8] = { "Offline", "Online" };
 	char saver[2][8] = { "is off", "on" };
 
-	while (a != 2) {
+	while (input != 2) {
 
 		system("cls");
 
@@ -43,13 +43,13 @@ int main(){
 	
 	thread log(getinfo);
 
-	while (a != 2) {
+	while (input != 2) {
 
-		if (a = _getch()) {
+		if (input = _getch()) {
 
-			a -= '0';
+			input -= '0';
 
-			switch (a) {
+			switch (input) {
 			
 			case(0):
 				SetSuspendState(FALSE, FALSE, FALSE);
